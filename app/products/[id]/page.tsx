@@ -1,17 +1,31 @@
 import FavouritesToggleButton from "@/components/products/FavouritesToggleButton";
+import ProductReviews from "@/components/reviews/ProductReviews";
+import SubmitReview from "@/components/reviews/SubmitReview";
 import AddToCart from "@/components/single-product/AddToCart";
 import Breadcrumbs from "@/components/single-product/Breadcrumbs";
 import ProductRating from "@/components/single-product/ProductRating";
+import ShareButton from "@/components/single-product/shareButton";
 import { Breadcrumb } from "@/components/ui/breadcrumb";
-import { fetchSingleProduct } from "@/utils/actions";
+import { fetchSingleProduct, findExistingReview } from "@/utils/actions";
 import { formatCurrency } from "@/utils/format";
 import Image from "next/image";
+import { auth } from "@clerk/nextjs/server";
 
 async function page({ params }: { params: { id: string } }) {
+  const { userId } = auth();
   const singleProduct = await fetchSingleProduct(params.id);
-  const { name, image, price, company, description } = singleProduct;
+  const {
+    name,
+    image,
+    price,
+    company,
+    description,
+    id: productId,
+  } = singleProduct;
   const dollarsAmount = formatCurrency(price);
 
+  const reviewDoesNotExist =
+    userId && !(await findExistingReview(userId, params.id));
   return (
     <section>
       <Breadcrumbs name={name}></Breadcrumbs>
@@ -33,9 +47,12 @@ async function page({ params }: { params: { id: string } }) {
         <div>
           <div className="flex gap-x-8 items-center">
             <h1 className="text-3xl font-bold capitalize">{name}</h1>
-            <FavouritesToggleButton productId={params.id} />
+            <div className="flex gap-x-2 items-center">
+              <FavouritesToggleButton productId={params.id} />
+              <ShareButton productId={params.id} name={name} />
+            </div>
           </div>
-          <ProductRating />
+          <ProductRating productId={params.id} />
           <h4 className="text-xl mt-2">{company}</h4>
           <p className="bg-muted p-2 rounded text-lg inline-block mt-2">
             {dollarsAmount}
@@ -44,6 +61,10 @@ async function page({ params }: { params: { id: string } }) {
           <AddToCart productId={params.id} />
         </div>
       </div>
+
+      <ProductReviews productId={params.id} />
+
+      {reviewDoesNotExist && <SubmitReview productId={params.id} />}
     </section>
   );
 }

@@ -15,7 +15,7 @@ function Navbar() {
           <NavSearch />
         </Suspense>
 
-        <div className="flex gap-2">
+        <div className="flex gap-x-4">
           <CartButton />
           <DarkMode />
           <LinksDropdown />

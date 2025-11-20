@@ -7,7 +7,7 @@ import FavouritesToggleButton from "./FavouritesToggleButton";
 
 async function ProductsGrid({ products }: { products: Product[] }) {
   return (
-    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 mtt-12">
+    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 mt-12">
       {products.map((product) => {
         const { name, price, image } = product;
         const productId = product.id;
